@@ -1,0 +1,30 @@
+syms s;
+g = 9.81;
+l = 0.11;
+m = 0.2;
+b = 0.004;
+Kt = 0.192;
+R = 11.5;
+Kb = 0.297;
+NUM = [Kt/R];
+DEN = [m*l^2 b+Kt*Kb/R -m*g*l];
+
+w_c = 1;
+m_f = 60*pi/180;
+
+Kcr = 13;
+
+K = 0.6*Kcr;
+
+tz_1 = 1;
+tz_2 = 1;
+tp = 0;
+
+plant = tf(NUM,DEN);
+pid = tf([K*tz_1*tz_2, tz_1 + tz_2, 1], [tp 1 0]);
+
+ol = pid*plant;
+
+rlocus(plant)
+
+
