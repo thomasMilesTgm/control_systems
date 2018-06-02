@@ -67,7 +67,7 @@ sys = lead*plant
 T = K*sys/(1+K*sys)
 
 
-%rlocus(K*sys)
+bode(T)
 
 [Gm,Pm,Wgm,Wpm] = margin(K*sys);
 

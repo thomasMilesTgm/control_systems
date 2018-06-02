@@ -150,18 +150,39 @@ Using the parameter values obtained we can now consider the actuated inverted pe
 	\paragraph{		Loop Shaping\\		}
 			% Bode plot of plant, note what the controller needs to do to meet phase and gain spec
 			% As such, explain how the choice of pole/zero placement generated desired results using bode/rlocus/nyquist
-			The zero used in the controller was chosen to be placed between the poles in the plant model, this serves to completely stabilise the unstable pole in the plant for sufficiently high K. Since we want the crossover frequency of the complimentary sensitivity function $T_0$ to be less than 50 rad/sec. Figure \ref{} shows the phase increase resulting from placing the pole further from the origin.
+			The zero used in the controller was chosen to be placed between the poles in the plant model, this serves to completely stabilise the unstable pole in the plant for sufficiently high K. 
 			
-			%TODO figures
+			\begin{figure}[ht!]
+			\centering
+			\includegraphics[scale=0.35]{vary_p}
+			\caption{Effect of Pole Placement on Complimentary Sensitivity Function}
+			\label{fig:vary_p}
+			\end{figure}			
 			
-			Finally, based on Figure \ref{}, the system is internally stable and non-oscillatory for $ 15 < K < 360 $. In order to meet the sensitivity and physical behaviour requirements, K = 100 was chosen, the resulting bode plot for sensitivity can be seen in Figure \ref{}. 
+			Varying the position of the pole in the nominal controller transfer function $ \frac{0.1s + 1}{\tau s + 1} $, Figure \ref{fig:vary_p} shows that phase increases when $ \tau $ is decreased, thus as the pole moves away from the origin. To meet the design requirements, the crossover frequency of the complimentary sensitivity function $T_0$ to be less than 50 rad/sec. Furthermore, to track desired inputs well, the magnitude of  the complimentary sensitivity function at low frequencies should be close to 1 dB. Figure \ref{fig:vary_p} demonstrates the phase margin at maximum crossover frequency (50 rad/sec) for $ \tau = 0.01 $ is substantially lower when compared to the smaller values of $ \tau $. $ \tau = 0.001 $ and $ \tau = 0.0001 $ have similar phase margins at 50 rad/sec crossover, with even lower discrepancy at lower crossover frequencies. Therefore, since $ \tau = 0.001 $ drops off sooner (making it less susceptible to sensor noise), this value was used in the controller.
+
+			\begin{figure}[ht!]
+			\centering
+			\includegraphics[scale=0.4]{rlocus_sys}
+			\caption{Root Locus of Open Loop System}
+			\label{fig:rlocus_sys}
+			\end{figure}									
+			
+			Finally, based on Figure \ref{fig:rlocus_sys}, the system is internally stable and non-oscillatory for $ 15 < K < 360 $. In order to meet the sensitivity and physical behaviour requirements, K = 100 was chosen, the resulting bode plot for sensitivity can be seen in Figure \ref{fig:bode_T}. 
+			
+			\begin{figure}[ht!]
+			\centering
+			\includegraphics[scale=0.4]{bode_T}
+			\caption{Bode Diagram -- Complimentary Sensitivity Function}
+			\label{fig:bode_T}
+			\end{figure}
 			
 			The crossover frequency of the sensitivity function is at approximately 30 rad/sec, which meets the sensitivity bandwidth requirement of 50hz. Furthermore, the magnitude of the sensitivity function for $ \omega < 30 $ rad/sec is approximately 1. This is desirable for physical performance, because overly high or low sensitivity to perturbations we which to respond to (in the lower range of frequencies) would result in over/undershooting.
 			
 			
 	\paragraph{		Time Domain Response		}
 			% Show the system behaves as desired based on impulse and step responses.
-			The final step in controller design prior to implementation and testing was simulating impulse and step responses of the closed loop system. 
+			The final step in controller design prior to implementation and testing was simulating impulse and step responses of the closed loop system. Figures \ref{} and \ref{} show the simulated responses; the behaviour is as anticipated based on prior analysis, showing no oscillation as designed.
 	
 			%%%
 %K = 170;
