@@ -33,18 +33,20 @@ By developing this set of ODEs, a transfer function relating angular displacemen
 
 \begin{figure}[h!]
 \centering
+\includegraphics[scale=0.3]{capture}
 \caption{Inverted Pendulum and DC Motor Systems  \tiny Credit: M. Cantoni, The University of Melbourne, ELEN90055 Problem Set 1.}
 \label{fig:diagram}
 \end{figure}
 Figure \ref{fig:diagram} demonstrates a simplified inverted pendulum and DC motor circuit where: 
 \begin{itemize}
-	\item $J = (J_m + ml^2)$: moment of inertia of the motor and load relative to the motor shaft (kg.m2)
+	\item $J = (J_m + ml^2)$:cap moment of inertia of the motor and load relative to the motor shaft (kg.m2)
 	\item $b$: viscous damping of shaft ($N.s/m$)
 	\item $\theta$: angular displacement of the motor shaft (rad)
 \end{itemize}
 
 \begin{figure}[h!]
 \centering
+\includegraphics[scale=.5]{22}
 \caption{Free Pendulum Model}
 \label{fig:pend}
 \end{figure}
@@ -68,32 +70,39 @@ To determine the physical properties of the system, the pendulum was allowed to 
 
 \begin{figure}[h!]
 \centering
+\includegraphics[scale=.5]{23}
 \caption{Free Pendulum Results}
 \label{fig:free_pend}
 \end{figure}
 
-By trial-and-error, the following parameter values for $m$, $l$, and $b$ were chosen to obtain a suitable ODE solution set:
+Best fitting values for $m$, $l$, and $b$ were found based on systematically adjusting values to improve the similarity between the model and the experimental results, yielding:
 \begin{align*}
 	m &= 0.20\quad \text{ Kg}\\
 	l &= 0.11\quad \text{ m}\\
 	b &= 0.004\quad \text{N.s/m}
 \end{align*}
-where $ g = 9.81 \text{ m}/\text{s}^2 $. These values yield the model shown in Figure \ref{fig:damping_match}
+Figure \ref{fig:damping_match} shows the modelled free pendulum compared to experimental data. 
+
 \begin{figure}[hb!]
 \centering
+\includegraphics[scale=0.35]{24}
 \caption{Matching Model to Experimental Results}
 \label{fig:damping_match}
 \end{figure}
+
+During this part of experimentation the gyroscope was mis-calibrated or had a hardware malfunction, resulting in a constant linear increase in theta of around 5 degrees per second as can be seen in Figure \ref{fig:damping_match}. If this is accounted for however the model does behave very similarly to the experimental results when theta is small. The model error for large values of theta is to be expected, since the ODE used made the assumption that theta is small.
+
 %TODO Explain the fuckery with the gyro, and account for it to maybe show a nicer figure.
-	Figure \ref{fig:damping_match} clearly shows that the parameter values selected do not accurately represent the physical system. There is a clear error between the data obtained from the gyro sensor and the data obtained from solving the ODE. However, because the form of calculated model is like the experimental data, we can be confident that developing a controller which meets the provided specifications based on this model will produce a control action suitable for controlling and responding to the dynamics of the physical system.
-Using the parameter values obtained we can now consider the actuated inverted pendulum system. A relevant subset of the stalled and no-load characteristics of the motor and a small-signal linearized approximation of are shown below:
+%	Figure \ref{fig:damping_match} clearly shows that the parameter values selected do not accurately represent the %physical system. There is a clear error between the data obtained from the gyro sensor and the data obtained from %solving the ODE. However, because the form of calculated model is like the experimental data, we can be confident %that developing a controller which meets the provided specifications based on this model will produce a control %action suitable for controlling and responding to the dynamics of the physical system.
+%Using the parameter values obtained we can now consider the actuated inverted pendulum system. A relevant subset of %the stalled and no-load characteristics of the motor and a small-signal linearized approximation of are shown below:
 %
+Having obtained parameter values for the system dynamics, the ODEs for the inverted pendulum can be found. 
 \begin{align*}
 	ml^2\ddot{\theta} &= \tau - b\dot{\theta} + mgl\theta \\
-	\intertext{ where }	\\
-	\tau &= \frac{Kt}{R}(v - K_b\dot{\theta}) \text{and}	\\
-	\frac{K_t}{R} &= 1.66 \times 10^-2 \frac{N.m}{V}				\\
-	K_b &= 0.297 \frac{\text{V}\cdot \text{sec}}{\text{rad}}\\
+	\intertext{ Similarly, ODE related to the electrical system were found using the stalled and no load characteristics of the DC motor: }	
+	\tau &= \frac{K_t}{R}(v - K_b\dot{\theta}) \qquad\text{and:}	\\
+	\frac{K_t}{R} &= 1.66 \times 10^-2 \frac{N\cdot m}{V}				\\
+	K_b &= 0.297 \frac{\text{V}\cdot \text{sec}}{\text{rad}}
 \end{align*}
 %TODO care plagarism/paraphrase better
 	Taking the Laplace Transform of the small-signal linear approximation and accounting for the "percentage full power" units 	of the motor command (percentage of 9 V) and gyro sensor and motor encoder angle measurement units (in degrees) yields the following transfer function between the motor command and pendulum angle in degrees:
@@ -112,7 +121,7 @@ Using the parameter values obtained we can now consider the actuated inverted pe
 	\subsection{	Performance Requirements	}
 	The controller should:
 	\begin{enumerate}
-	\item Reject impulsive and step disturbances, imparted by manual displacement of the pendulum and turning the robot caused by the drive wheels respectively.
+	\item Reject impulsive and step disturbances; imparted by manual displacement of the pendulum, and the robot steering using the drive wheels.
 	\item Be internally stable.
 	\item Have a phase margin of 40$^\circ$ or more.
 	\item Have a complimentary sensitivity function bandwidth of less than 50 rad/sec.
@@ -135,7 +144,7 @@ Using the parameter values obtained we can now consider the actuated inverted pe
 	\paragraph{		Model Considerations to Meet Requirements }
 		
 	\begin{itemize}
-		\item \textit{Meeting the phase requirement}. Observing the phase part of Figure \ref{fig:bode_plnt}, it can be seen that to achieve the required phase margin the controller needs to add phase at crossover.
+		\item \textit{Meeting the phase requirement}. The phase in Figure \ref{fig:bode_plnt} must be increased by the controller for a phase margin of forty or more degrees.
 		\item \textit{Internal stability}. Figure \ref{fig:rl_plnt} shows the root locus plot of the plant transfer function detailed in section \ref{sec:model}. Because the model contains an unstable pole, sufficient gain to stabilise it must be used. Since the relative degree of the model is two, during controller design care was taken to avoid excessive gain values which develop undesirable oscillations in the system.
 	\end{itemize}				
 		
@@ -147,9 +156,8 @@ Using the parameter values obtained we can now consider the actuated inverted pe
 		\end{figure}
 						
 			
-	\paragraph{		Loop Shaping\\		}
-			% Bode plot of plant, note what the controller needs to do to meet phase and gain spec
-			% As such, explain how the choice of pole/zero placement generated desired results using bode/rlocus/nyquist
+	\subsection{		Loop Shaping\\		}
+		\paragraph{Stabilising the RHP Pole}
 			The zero used in the controller was chosen to be placed between the poles in the plant model, this serves to completely stabilise the unstable pole in the plant for sufficiently high K. 
 			
 			\begin{figure}[ht!]
@@ -159,7 +167,11 @@ Using the parameter values obtained we can now consider the actuated inverted pe
 			\label{fig:vary_p}
 			\end{figure}			
 			
-			Varying the position of the pole in the nominal controller transfer function $ \frac{0.1s + 1}{\tau s + 1} $, Figure \ref{fig:vary_p} shows that phase increases when $ \tau $ is decreased, thus as the pole moves away from the origin. To meet the design requirements, the crossover frequency of the complimentary sensitivity function $T_0$ to be less than 50 rad/sec. Furthermore, to track desired inputs well, the magnitude of  the complimentary sensitivity function at low frequencies should be close to 1 dB. Figure \ref{fig:vary_p} demonstrates the phase margin at maximum crossover frequency (50 rad/sec) for $ \tau = 0.01 $ is substantially lower when compared to the smaller values of $ \tau $. $ \tau = 0.001 $ and $ \tau = 0.0001 $ have similar phase margins at 50 rad/sec crossover, with even lower discrepancy at lower crossover frequencies. Therefore, since $ \tau = 0.001 $ drops off sooner (making it less susceptible to sensor noise), this value was used in the controller.
+		\paragraph{Meeting Phase Margin Requirement}
+			Varying the position of the pole in the nominal controller transfer function $ \frac{0.1s + 1}{\tau s + 1} $, Figure \ref{fig:vary_p} shows that phase increases when $ \tau $ is decreased, thus as the pole moves away from the origin. 
+			
+		\paragraph{Complimentary Sensitivity Function Bandwidth}			
+			To meet the design requirements, the crossover frequency of the complimentary sensitivity function $T_0$ to be less than 50 rad/sec. Furthermore, to track desired inputs well, the magnitude of  the complimentary sensitivity function at low frequencies should be close to 1 dB. Figure \ref{fig:vary_p} demonstrates the phase margin at maximum crossover frequency (50 rad/sec) for $ \tau = 0.01 $ is substantially lower when compared to the smaller values of $ \tau $. $ \tau = 0.001 $ and $ \tau = 0.0001 $ have similar phase margins at 50 rad/sec crossover, with even lower discrepancy at lower crossover frequencies. Therefore, since $ \tau = 0.001 $ drops off sooner (making it less susceptible to sensor noise), this value was used in the controller.
 
 			\begin{figure}[ht!]
 			\centering
@@ -168,6 +180,7 @@ Using the parameter values obtained we can now consider the actuated inverted pe
 			\label{fig:rlocus_sys}
 			\end{figure}									
 			
+		\paragraph{Internal Stability}
 			Finally, based on Figure \ref{fig:rlocus_sys}, the system is internally stable and non-oscillatory for $ 15 < K < 360 $. In order to meet the sensitivity and physical behaviour requirements, K = 100 was chosen, the resulting bode plot for sensitivity can be seen in Figure \ref{fig:bode_T}. 
 			
 			\begin{figure}[ht!]
@@ -180,9 +193,7 @@ Using the parameter values obtained we can now consider the actuated inverted pe
 			The crossover frequency of the sensitivity function is at approximately 30 rad/sec, which meets the sensitivity bandwidth requirement of 50hz. Furthermore, the magnitude of the sensitivity function for $ \omega < 30 $ rad/sec is approximately 1. This is desirable for physical performance, because overly high or low sensitivity to perturbations we which to respond to (in the lower range of frequencies) would result in over/undershooting.
 			
 			
-	\paragraph{		Time Domain Response		}
-			% Show the system behaves as desired based on impulse and step responses.
-			The final step in controller design prior to implementation and testing was simulating impulse and step responses of the closed loop system. Figures \ref{} and \ref{} show the simulated responses; the behaviour is as anticipated based on prior analysis, showing no oscillation as designed.
+
 	
 			%%%
 %K = 170;

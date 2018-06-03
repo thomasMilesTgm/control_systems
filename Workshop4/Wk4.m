@@ -80,7 +80,7 @@ gain_m = Gm
 
 %legend('K = 25', 'K = 50', 'K = 100')
 %figure
-
+figure
 opt = stepDataOptions('StepAmplitude', -1);
 impulse(feedback(K*sys, 1), opt);
 
