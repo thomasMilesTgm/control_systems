@@ -17,27 +17,26 @@
 \clearpage
 \pagenumbering{arabic}
 \section{Introduction}\label{sec:intro}
-This project aims to create a feedback controller in order to balance an activated inverted pendulum in an upright position whilst rejecting various disturbances.
+\quad This report proposes a control system which can maintain an inverted pendulum upright under the presence of external disturbances and sensor noise. The system used a phase-lead feedback controller to achieve robust behaviour, insensitive to modelling errors and a range of operating conditions.
 
-To achieve this goal, Simulink was used to interface with the robot the pendulum was mounted on, adjusting the controller configuration and parameters, sending commands, and receiving encoder data from the robot's motors as well as data from a gyroscope mounted on the pendulum. This allowed a wide range of variables to be tested to systematically assess their impact on the system behaviour, aiding in design decisions when choosing the final controller configuration.
+Controller programming, analysis, and interfacing with the \textit{LEGO MINDSTORMS EV3} was completed using Simulink and Matlab, which provide a vast library of tools for system analysis and hardware control. 
 
+Using mathematical models for the robot's electrical and physical dynamics, the controller was designed to meet a set of operating requirements discussed in detail in section \ref{sec:design}.
 %-----------------------------------------------------------------------------------------------------------------------------%
 \section{	System Modelling	}\label{sec:model}
-
 \subsection{	Building the Inverted Pendulum Model	}
-	The model of the actuated inverted pendulum mounted on the LEGO MINDSTORMS EV3 robot was developed using a combination of physical reasoning from the mathematical model of the system, presenting the form of the model, and experimental data, to identify and approximate suitable model parameters.
-Our aim was to identify and develop a suitable model to implement feedback control on the actuated inverted pendulum to balance the pendulum in the presence of disturbance – impulse disturbance from manually displacing the pendulum and disturbance introduced from the motion of the robot. For this reason, we expect this model to be a simplification of the real system and to inherently differ from the actual system in parameter values. Nonetheless, this model will resemble the actual system in form and will be sufficient to implement feedback control on the inverted pendulum.
+\quad The mathematical models for the system were derived from basic physics principles; then using kinematics the physical properties of the system were then found via experiment.
+By developing this set of ODEs, a transfer function relating angular displacement (from a gyroscope sensor attached to the  pendulum) to a motor voltage command.
 
 \subsection{	Mathematical Model of the Inverted Pendulum		}
-The mathematical basis for the inverted pendulum model is taken from ELEN90055 Problem Set 1. Figure \ref{fig:diagram} below shows a simplified inverted pendulum system:
+
 
 \begin{figure}[h!]
 \centering
-\caption{Inverted Pendulum and DC Motor Systems}
+\caption{Inverted Pendulum and DC Motor Systems  \tiny Credit: M. Cantoni, The University of Melbourne, ELEN90055 Problem Set 1.}
 \label{fig:diagram}
 \end{figure}
-
-In this model, only the ordinary differential equation (ODE) involving the mechanics of the system will be considered. This is because the experimental data obtained was from an unactuated system - only the mechanical dynamics of the system influenced this data. In this system:
+Figure \ref{fig:diagram} demonstrates a simplified inverted pendulum and DC motor circuit where: 
 \begin{itemize}
 	\item $J = (J_m + ml^2)$: moment of inertia of the motor and load relative to the motor shaft (kg.m2)
 	\item $b$: viscous damping of shaft ($N.s/m$)
@@ -46,32 +45,33 @@ In this model, only the ordinary differential equation (ODE) involving the mecha
 
 \begin{figure}[h!]
 \centering
-\caption{Pendulum Model}
+\caption{Free Pendulum Model}
 \label{fig:pend}
 \end{figure}
 
-Using the Newton-Euler equation for the angular acceleration of the pendulum about the motor shaft, we obtain the following equations:
+Using the Newton-Euler equation for the angular acceleration of the pendulum about the motor shaft:
 \begin{align*}
 	M &= J\ddot{\theta}	\\
 	mgl\sin(\theta)-T_{damping} &= (J_m + ml^2)\ddot{\theta}\\
 	mgl\sin(\theta) - b\dot\theta &= (J_m+ml^2)\ddot{\theta}\\
 	mgl\sin(\theta) &= (J_m + ml^2)\ddot{\theta} + b\dot\theta\\
-	\intertext{Assuming small values for theta:}\\
+	\intertext{Assuming small values for theta:}
 	\Rightarrow mgl\sin(\theta) + b\dot\theta &= (ml^2)\ddot{\theta} \qquad \text{(1)}\\
 \end{align*}
 
-Equation (1) is the ODE governing the free motion of the pendulum after displacement. As can be noted from the form of the expression, the frictional torque due to damping is additive. This choice yields a solution set which most closely resembles the solution set obtained from experimental data in the next section.
+To determine the physical properties of the system, the pendulum was allowed to swing un-actuated and it's motion was measured using the gyro. Subsequently, equation (1) can be solved numerically, systematically varying physical parameters to find a model that is accurate to the experimental data obtained.
+%Equation (1) is the ODE governing the free motion of the pendulum after displacement. As can be noted from the form %of the expression, the frictional torque due to damping is additive. This choice yields a solution set which most %closely resembles the solution set obtained from experimental data in the next section.
 
-\subsection{	Experimental Data vs Calculated Data	}
+\subsection{	Fitting Parameters	}
 
-	Experimental data obtained from displacing the pendulum as shown in Figure \ref{fig:free_pend} where the initial conditions were $ \dot{\theta}(0) = 0 $ and $ \theta(0) = \frac{\pi}{2} $ produced the figure below:
+	During experimentation, the pendulum was dropped from rest at an angle of 90$^\circ$, the motion data recorded by the gyroscope can be seen in \ref{fig:free_pend}.
 
 \begin{figure}[h!]
 \centering
 \caption{Free Pendulum Results}
 \label{fig:free_pend}
 \end{figure}
-%TODO was it entirely trial and error ?
+
 By trial-and-error, the following parameter values for $m$, $l$, and $b$ were chosen to obtain a suitable ODE solution set:
 \begin{align*}
 	m &= 0.20\quad \text{ Kg}\\
@@ -173,7 +173,7 @@ Using the parameter values obtained we can now consider the actuated inverted pe
 			\begin{figure}[ht!]
 			\centering
 			\includegraphics[scale=0.4]{bode_T}
-			\caption{Bode Diagram -- Complimentary Sensitivity Function}
+			\caption{Bode Diagram -- Complimentary Sensitivity Function, $ T_0 $}
 			\label{fig:bode_T}
 			\end{figure}
 			
